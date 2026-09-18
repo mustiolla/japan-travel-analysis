@@ -1,5 +1,8 @@
 # ✈️ 원/엔 환율과 일본 여행객 수의 시계열 관계 분석
-* **Data Source:** Yahoo Finance (환율 `JPYKRW=X`) / JNTO (일본정부관광국 방일 외래객 통계)
+* **GitHub Repository:** [mustiolla/japan-travel-analysis](https://github.com/mustiolla/japan-travel-analysis)
+* **Data Source:** 
+  * 원/엔 환율: Yahoo Finance API (`JPYKRW=X`)
+  * 일본 방문객 수: 일본정부관광국(JNTO) 외래객 통계 원본 파일 ([`data/tourists_to_japan.xlsx`](file:///d:/LEH/AI%20%EB%84%A4%EC%9D%B4%ED%8B%B0%EB%B8%8C/3.%20AI%20%EC%9D%91%EC%9A%A9%ED%95%99%EC%8A%B5/M1-1/japan-travel-analysis/data/tourists_to_japan.xlsx), [`data/tourists_to_japan.csv`](file:///d:/LEH/AI%20%EB%84%A4%EC%9D%B4%ED%8B%B0%EB%B8%8C/3.%20AI%20%EC%9D%91%EC%9A%A9%ED%95%99%EC%8A%B5/M1-1/japan-travel-analysis/data/tourists_to_japan.csv))
 * **Analysis Period:** 2010년 1월 ~ 2024년 8월 (월별 시계열 데이터)
 
 본 프로젝트는 장기화된 '엔저 현상'이 한국인의 일본 여행 수요에 미치는 통계적 영향을 검증하고, 나아가 대지진·팬데믹·외교 갈등과 같은 역사적 외부 충격(Black Swan)이 이러한 경제적 상관관계를 어떻게 붕괴시키는지 2010년부터의 데이터를 바탕으로 심층 분석했습니다.
@@ -10,11 +13,11 @@
 
 ```mermaid
 graph TD
-    A[💡 1. 기획 및 가설 설정<br>환율, 수요 관계 및 시차 가설 정의] --> B(📥 2. 데이터 수집<br>Yahoo Finance API & JNTO 엑셀)
-    B --> C(🧹 3. 데이터 전처리<br>데이터 병합 및 기간별 이상치 분리)
-    C --> D(📊 4. 시계열 분석 및 시각화<br>추이 비교 / 시계열 분해 / 이동 상관계수 / 시차 분석)
-    D --> E(🔬 5. 계량경제학 심화 분석<br>다변량 OLS 회귀분석 및 강건성 검증)
-    E --> F{🎯 6. 인사이트 도출<br>경제 논리 검증 및 마케팅 골든타임 제시}
+    A[💡 1. 기획 및 가설 설정<br>5대 핵심 질문 및 정량 지표 정의] --> B(📥 2. 데이터 수집<br>Yahoo Finance API & JNTO 엑셀)
+    B --> C(🧹 3. 데이터 전처리<br>Inner Join & 결측치/이상치 정제)
+    C --> D(📊 4. 시계열 분석 및 시각화<br>이중축 / 산점도 / 시계열 분해 / 이동상관 / 시차분석)
+    D --> E(🔬 5. 계량경제학 심화 분석<br>다변량 OLS 회귀분석 & 강건성 검증)
+    E --> F{🎯 6. 인사이트 도출<br>Fact-Why-Action & 정량 KPI 제시}
 
     style A fill:#f9f2f4,stroke:#d398a7,stroke-width:2px
     style B fill:#e6f2ff,stroke:#99c2ff,stroke-width:2px
@@ -26,51 +29,63 @@ graph TD
 
 ---
 
-## 🎯 프로젝트 미션
+## 🎯 프로젝트 미션 & 검증 지표
 
-* 원/엔 환율 변동이 한국인의 일본 여행 수요에 미치는 실제 영향 입증
-* 시계열 분해(Decomposition)를 통한 환율 외 고정적 수요(계절성) 검증
-* 환율 하락 뉴스가 실제 여행 수요로 전환되기까지의 시차(Lag) 추정
-* 2010년 이후 12개월 이동 상관계수(Rolling Correlation)를 추적하여 역사적 외부 충격이 경제 원리에 미치는 영향력 분석
-* 다변량 회귀분석(OLS)을 통한 환율 시차 및 월별 계절성 복합 설명력 모델링
+| 분석 목표 | 검증 기법 | 핵심 지표 및 성공 판정 기준 | 대응 코드 위치 |
+| :--- | :--- | :--- | :--- |
+| **환율-수요 역상관 입증** | 이중 축 추이 & 산점도 | 피어슨 상관계수 $\|r\| \ge 0.50$, $p < 0.05$ | `analysis.ipynb` [Cell #13, #15] |
+| **계절성(Seasonality) 분리** | 가법 시계열 분해 (Statsmodels) | 주기 12 분해 및 계절성 분산 기여율(8.2%) 규명 | `analysis.ipynb` [Cell #17, #19] |
+| **최적 리드타임(Golden Time)** | 0~6개월 시차 교차 상관분석 | 3~4개월 시차에서 최고 상관계수($r=-0.632$) 도출 | `analysis.ipynb` [Cell #27, #29] |
+| **블랙스완 상관관계 붕괴** | 12개월 이동 상관계수 (Rolling Corr) | 외부 충격 시점 상관계수의 양수 반전($r > 0$) 검증 | `analysis.ipynb` [Cell #23, #25] |
+| **복합 영향력 정량 모델링** | 다변량 OLS 회귀분석 | 설명력 $R^2 \ge 0.40$ 및 환율 계수 유의성($p < 0.001$) | `analysis.ipynb` [Cell #31] |
 
 ---
 
-## 🛠 기술 스택 및 분석 기법
+## 🛠 기술 스택 및 파라미터 규칙 (Parameters & Decision Rules)
 
 * **Environment:** Python 3.10+, Jupyter Notebook
 * **Libraries:** `pandas`, `numpy`, `scipy`, `statsmodels`, `matplotlib`, `seaborn`, `yfinance`, `openpyxl`
-* **주요 분석 기법 (파생 변수 및 모델):**
-  * **3개월 이동평균(3MA):** 단기적인 환율 노이즈를 평활화(Smoothing)하여 중장기 거시 추세 도출
-  * **방문객 변화율(ROC, %):** 전월 대비 증감 속도를 산출하여 외부 충격(Black Swan) 발생 시점의 타격 민감도 측정
-  * **12개월 이동 상관계수(Rolling Correlation):** 시계열 동적 상관성을 추적하여 경제 공식 붕괴 시점 포착
-  * **교차 상관 분석(Cross-Correlation):** 0~6개월 시차(Lag)별 상관계수 및 $p$-value 검증
-  * **다변량 OLS 회귀 모델:** 환율 3개월 시차 및 12개 월 더미 변수를 결합한 수요 설명 모형 구축
+* **주요 파라미터 및 실무 의사결정 규칙 (Decision Rules):**
+  * **3개월 이동평균(3MA):** 
+    * 파라미터: `window=3` (`analysis.ipynb` [Cell #29], `run_analysis.py:L55`)
+    * **실무 룰:** 단기 일시적 환율 등락에 흔들리지 않고 3MA가 2개월 연속 하락세를 나타낼 때 프로모션 마케팅 자본 투입.
+  * **방문객 전월 대비 변화율(ROC):** 
+    * 파라미터: `pct_change() * 100` (`analysis.ipynb` [Cell #29], `run_analysis.py:L56`)
+    * **실무 룰:** 방문객 ROC가 **전월 대비 -20% 이하로 급락**할 경우 안전/외교 위협으로 판단, 비상 리스크 관리 매뉴얼 즉시 가동.
+  * **결측치 정제:** 
+    * 최근 4개월 미집계 결측치(`NaN`) `dropna()` 적용 (`analysis.ipynb` [Cell #11], `run_analysis.py:L50`) $\rightarrow$ 민감도 분석 결과 Drop 방식이 인위적 왜곡이 없어 채택.
 
 ---
 
 ## 🚀 주요 분석 요약
 
-* **역의 상관관계 입증:** 환율 하락(엔저) 시 방문객이 급증하는 전반적인 트렌드와 우하향 산점도 확인 (분기별 리샘플링 집계 시에도 $r = -0.523$ 일관성 확인)
-* **확고한 계절성 발견:** 환율 상황과 무관하게 매년 1~2월 겨울 성수기(온천/눈축제/방학)에 방문객이 압도적으로 몰리고, 9월(태풍/휴가 직후)이 최비수기인 고유 패턴 규명
+* **역의 상관관계 입증:** 환율 하락(엔저) 시 방문객이 급증하는 전반적인 트렌드와 우하향 산점도 확인 ($r = -0.596$, 95% CI: $[-0.700, -0.466]$, 분기별 리샘플링 집계 시에도 $r = -0.620$)
+* **확고한 계절성 발견:** 환율 상황과 무관하게 매년 1~2월 겨울 성수기(온천/눈축제/방학)에 방문객이 연중 최다이고, 9월(태풍/휴가 직후)이 최비수기인 고유 패턴 규명 (시계열 분해 상 계절성 분산 기여율 8.2%)
 * **3~4개월의 골든타임 (Lag Effect):** 교차 상관 분석 결과, 환율 하락 시점으로부터 3~4개월 뒤에 여행 수요가 가장 강력하게 반응함($r = -0.632$, $p = 2.03 \times 10^{-14}$)을 입증하여 항공/여행업계의 선행 마케팅 지표 제시
-* **심층 분석 (블랙스완의 위력):** 이동 상관계수 분석 결과, 대지진(2011, 2016), 노재팬(2019), 코로나19(2020) 등 사회/자연적 충격이 발생한 6차례의 구간에서는 환율 하락 효과가 완전히 무효화되며 경제적 상관관계가 붕괴됨을 증명
+* **심층 분석 (블랙스완의 위력):** 이동 상관계수 분석 결과, 2011 동일본 대지진(방문객 -51.2%), 2019 노재팬(방문객 -55.4%), 2020 팬데믹 등 6차례의 외부 충격 시점마다 상관관계가 완전히 붕괴($r > 0$)됨을 증명
 * **[심화] 다변량 OLS 설명력 ($R^2 = 0.452$):** 환율 3개월 시차와 월별 계절성만으로 여행객 변동의 45.2%를 유의미하게 설명($p < 0.001$)하며, 1엔당 환율 1원 하락 시 3개월 뒤 방문객 약 6.8만 명 증가 추정치 도출
 
 ---
 
-## 💻 실행 방법 (Getting Started)
+## 💻 실행 방법 및 재현성 (Getting Started)
+
+본 프로젝트는 주피터 노트북([analysis.ipynb](file:///d:/LEH/AI%20%EB%84%A4%EC%9D%B4%ED%8B%B0%EB%B8%8C/3.%20AI%20%EC%9D%91%EC%9A%A9%ED%95%99%EC%8A%B5/M1-1/japan-travel-analysis/analysis.ipynb))에 **모든 셀 실행 결과와 시각화 차트가 온전히 포함**되어 있으며, 터미널에서 **원클릭 자동 실행 스크립트**를 통해서도 100% 동일하게 재현할 수 있습니다.
 
 ### 1. 패키지 설치
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. 주피터 노트북 실행
+### 2. 원클릭 파이프라인 일괄 실행 (터미널)
+```bash
+python run_analysis.py
+```
+* 데이터 수집, 결측치 정제, 통계치/OLS 계산 및 11개 시각화 차트(`images/`)가 자동 갱신됩니다.
+
+### 3. 주피터 노트북 실행
 ```bash
 jupyter notebook analysis.ipynb
 ```
-전체 분석 코드는 `analysis.ipynb`에 마크다운 해설과 함께 단계별로 구성되어 있습니다.
 
 ---
 
@@ -78,12 +93,21 @@ jupyter notebook analysis.ipynb
 
 ```text
 japan-travel-analysis/
-├── analysis.ipynb          # 전체 시계열 분석 및 모델링 주피터 노트북
-├── requirements.txt        # 프로젝트 실행 의존성 라이브러리 목록
-├── README.md               # 프로젝트 요약 및 안내 문서
-├── REPORT.md               # 종합 분석 리포트 (Fact-Why-Action 기반)
-├── data/                   # 일본정부관광국(JNTO) 외래객 통계 원본 데이터
-│   ├── tourists_to_japan.csv
-│   └── tourists_to_japan.xlsx
-└── images/                 # 분석 시각화 차트 이미지 (11종)
+├── run_analysis.py         # 원클릭 전체 파이프라인 자동 실행 스크립트 (신규 추가)
+├── analysis.ipynb          # 전체 시계열 분석 & OLS 모델링 주피터 노트북 (셀 결과 포함)
+├── requirements.txt        # 프로젝트 실행 의존성 패키지 목록
+├── README.md               # 프로젝트 요약, 실행법 및 가이드 문서
+├── REPORT.md               # 종합 분석 리포트 (Fact-Why-Action, 검증 로그 포함)
+├── AI_PROMPT_LOG.md        # AI 활용 프롬프트 및 응답 검증 전문 로그 (신규 추가)
+├── data/                   # 원시 데이터 파일
+│   ├── tourists_to_japan.xlsx  # JNTO 공식 방일 외래객 엑셀 통계 원본
+│   └── tourists_to_japan.csv   # JNTO 공식 통계 CSV 원본
+└── images/                 # 생성된 시각화 차트 (11종)
+    ├── 01_trend_dual_axis.png
+    ├── 02_scatter_correlation.png
+    ├── 03_time_series_decomposition.png
+    ├── 04_monthly_boxplot.png
+    ├── 05_trend_with_events.png
+    ├── 07_rolling_corr_with_new_events.png
+    └── 08_lag_correlation_updated.png ...
 ```
