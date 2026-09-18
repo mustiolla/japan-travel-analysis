@@ -159,9 +159,9 @@ plt.close()
 # 차트 3: 시계열 분해도
 fig = decomp.plot()
 fig.set_size_inches(12, 8)
-plt.suptitle('방일 한국인 여행객 수 시계열 분해 (2014~2019 가법 모델)', fontsize=14, fontweight='bold', y=1.02)
-plt.tight_layout()
-fig.savefig(os.path.join(IMAGES_DIR, '03_time_series_decomposition.png'), dpi=150)
+plt.suptitle('방일 한국인 여행객 수 시계열 분해 (2014~2019 가법 모델)', fontsize=15, fontweight='bold', y=0.97)
+fig.tight_layout(rect=[0, 0, 1, 0.95])
+fig.savefig(os.path.join(IMAGES_DIR, '03_time_series_decomposition.png'), dpi=150, bbox_inches='tight')
 plt.close()
 
 # 차트 4: 월별 박스플롯 (시계열 분해와 동일한 2014~2019 정상기 기준)
