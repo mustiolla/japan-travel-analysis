@@ -164,15 +164,43 @@ plt.tight_layout()
 fig.savefig(os.path.join(IMAGES_DIR, '03_time_series_decomposition.png'), dpi=150)
 plt.close()
 
-# 차트 4: 월별 박스플롯
-df_pre_box = df_pre.copy()
-df_pre_box['Month'] = df_pre_box['Date'].dt.month
-plt.figure(figsize=(10, 5))
-sns.boxplot(data=df_pre_box, x='Month', y='Visitors', palette='coolwarm')
-plt.title('월별 방일 한국인 방문객 수 분포 (2010~2019 계절성 검증)', fontsize=13, fontweight='bold')
-plt.xlabel('월 (Month)')
-plt.ylabel('방문객 수')
-plt.grid(True, linestyle=':', alpha=0.6)
+# 차트 4: 월별 박스플롯 (시계열 분해와 동일한 2014~2019 정상기 기준)
+df_box = df_clean[(df_clean['Date'] >= '2014-01-01') & (df_clean['Date'] < '2020-01-01')].copy()
+df_box['Month'] = df_box['Date'].dt.month
+
+plt.figure(figsize=(13, 6))
+medianprops = dict(color='darkred', linewidth=2.5)
+box = sns.boxplot(
+    data=df_box, 
+    x='Month', 
+    y='Visitors', 
+    hue='Month',
+    palette='Blues',
+    legend=False,
+    medianprops=medianprops,
+    showmeans=True,
+    meanprops=dict(marker='o', markeredgecolor='black', markerfacecolor='yellow', markersize=6)
+)
+
+medians = df_box.groupby('Month')['Visitors'].median()
+for i, m in enumerate(range(1, 13)):
+    med = medians[m]
+    if m in [1, 2]:
+        box.text(i, med + 15000, f"{med/10000:.1f}만\n({m}위)", ha='center', va='bottom', fontsize=9, fontweight='bold', color='darkred')
+    elif m == 9:
+        box.text(i, med - 20000, f"{med/10000:.1f}만\n(최저)", ha='center', va='top', fontsize=9, fontweight='bold', color='blue')
+
+plt.title('월별 방일 한국인 방문객 수 분포 (코로나 이전 정상기: 2014~2019)', fontsize=14, fontweight='bold', pad=15)
+plt.xlabel('월 (Month)', fontsize=12, labelpad=8)
+plt.ylabel('방문객 수 (명)', fontsize=12, labelpad=8)
+plt.grid(True, linestyle=':', alpha=0.6, axis='y')
+
+from matplotlib.lines import Line2D
+legend_elements = [
+    Line2D([0], [0], color='darkred', lw=2.5, label='중앙값 (Median)'),
+    Line2D([0], [0], marker='o', color='w', markerfacecolor='yellow', markeredgecolor='black', markersize=8, label='평균 (Mean)')
+]
+plt.legend(handles=legend_elements, loc='upper right', framealpha=0.9)
 plt.tight_layout()
 plt.savefig(os.path.join(IMAGES_DIR, '04_monthly_boxplot.png'), dpi=150)
 plt.close()
