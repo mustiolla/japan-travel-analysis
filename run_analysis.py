@@ -17,6 +17,7 @@ import pandas as pd
 import numpy as np
 import scipy.stats as stats
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 import seaborn as sns
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
@@ -157,11 +158,71 @@ plt.tight_layout()
 plt.savefig(os.path.join(IMAGES_DIR, '02_scatter_correlation.png'), dpi=150)
 plt.close()
 
-# 차트 3: 시계열 분해도
-fig = decomp.plot()
-fig.set_size_inches(12, 8)
-plt.suptitle('방일 한국인 여행객 수 시계열 분해 (2014~2019 가법 모델)', fontsize=15, fontweight='bold', y=0.97)
-fig.tight_layout(rect=[0, 0, 1, 0.95])
+# 차트 3: 고품질 시계열 분해도
+pct_tr = (var_tr / var_tot) * 100
+pct_se = (var_sea / var_tot) * 100
+pct_re = (var_res / var_tot) * 100
+
+fig, axes = plt.subplots(4, 1, figsize=(13, 10), sharex=True)
+
+# 1. 관측치 (Observed)
+ax1 = axes[0]
+ax1.plot(decomp.observed.index, decomp.observed.values, color='#0f4c81', linewidth=2, label='실제 방문객 수')
+ax1.fill_between(decomp.observed.index, decomp.observed.values, color='#0f4c81', alpha=0.1)
+ax1.set_ylabel('방문객 수 (명)', fontsize=10, fontweight='bold', color='#0f4c81')
+ax1.set_title('① 관측치 (Observed Visitors) - 원계열 데이터 (2014~2019 정상기)', fontsize=11, fontweight='bold', loc='left', pad=6)
+ax1.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: f'{int(x):,}'))
+ax1.grid(True, linestyle=':', alpha=0.6)
+ax1.text(0.98, 0.85, '원 데이터 (추세+계절성+잔차 결합)', transform=ax1.transAxes, ha='right', fontsize=9,
+         bbox=dict(boxstyle='round,pad=0.3', facecolor='#f0f4f8', edgecolor='#0f4c81', alpha=0.8))
+
+# 2. 추세 성분 (Trend)
+ax2 = axes[1]
+ax2.plot(decomp.trend.index, decomp.trend.values, color='#1b9e77', linewidth=2.5, label='장기 추세')
+ax2.set_ylabel('추세 성분 (명)', fontsize=10, fontweight='bold', color='#1b9e77')
+ax2.set_title(f'② 추세 성분 (Long-term Trend)  |  [분산 기여율: {pct_tr:.1f}%]', fontsize=11, fontweight='bold', loc='left', pad=6)
+ax2.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: f'{int(x):,}'))
+ax2.grid(True, linestyle=':', alpha=0.6)
+ax2.text(0.98, 0.85, f'장기 성장 견인 (기여율 {pct_tr:.1f}%)', transform=ax2.transAxes, ha='right', fontsize=9,
+         bbox=dict(boxstyle='round,pad=0.3', facecolor='#e8f5e9', edgecolor='#1b9e77', alpha=0.8))
+
+# 3. 계절성 성분 (Seasonal)
+ax3 = axes[2]
+ax3.plot(decomp.seasonal.index, decomp.seasonal.values, color='#d95f02', linewidth=2, label='12개월 주기 계절성')
+ax3.axhline(0, color='gray', linestyle='--', linewidth=1, alpha=0.7)
+ax3.fill_between(decomp.seasonal.index, decomp.seasonal.values, 0, where=(decomp.seasonal.values >= 0), color='#d95f02', alpha=0.2, label='성수기 (+) 효과')
+ax3.fill_between(decomp.seasonal.index, decomp.seasonal.values, 0, where=(decomp.seasonal.values < 0), color='#3182bd', alpha=0.15, label='비수기 (-) 효과')
+ax3.set_ylabel('계절 변동치 (명)', fontsize=10, fontweight='bold', color='#d95f02')
+ax3.set_title(f'③ 계절성 성분 (12-Month Seasonality)  |  [분산 기여율: {pct_se:.1f}%]', fontsize=11, fontweight='bold', loc='left', pad=6)
+ax3.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: f'{int(x):,}'))
+ax3.grid(True, linestyle=':', alpha=0.6)
+ax3.text(0.98, 0.85, f'매년 1~2월 겨울 피크 & 9월 최비수기 반복 (기여율 {pct_se:.1f}%)', transform=ax3.transAxes, ha='right', fontsize=9,
+         bbox=dict(boxstyle='round,pad=0.3', facecolor='#fff3e0', edgecolor='#d95f02', alpha=0.8))
+
+# 4. 불규칙 잔차 성분 (Residual)
+ax4 = axes[3]
+ax4.scatter(decomp.resid.index, decomp.resid.values, color='#7570b3', alpha=0.7, s=28, label='잔차')
+ax4.axhline(0, color='black', linestyle='-', linewidth=1)
+ax4.set_ylabel('불규칙 잔차 (명)', fontsize=10, fontweight='bold', color='#7570b3')
+ax4.set_title(f'④ 불규칙 잔차 (Irregular Residuals)  |  [분산 기여율: {pct_re:.1f}%]', fontsize=11, fontweight='bold', loc='left', pad=6)
+ax4.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: f'{int(x):,}'))
+ax4.grid(True, linestyle=':', alpha=0.6)
+ax4.text(0.98, 0.85, f'외부 요인 및 일시적 노이즈 (기여율 {pct_re:.1f}%)', transform=ax4.transAxes, ha='right', fontsize=9,
+         bbox=dict(boxstyle='round,pad=0.3', facecolor='#f3e5f5', edgecolor='#7570b3', alpha=0.8))
+
+# X축 포맷
+ax4.set_xlabel('연도 (Date)', fontsize=11, fontweight='bold')
+ax4.xaxis.set_major_locator(plt.matplotlib.dates.YearLocator())
+ax4.xaxis.set_major_formatter(plt.matplotlib.dates.DateFormatter('%Y년'))
+
+# 전체 제목 및 요약 박스
+plt.suptitle('방일 한국인 여행객 수 시계열 분해 (2014~2019 정상기 가법 모델)', fontsize=15, fontweight='bold', y=0.98)
+fig.text(0.5, 0.935,
+         f'■ 총 분산 기여율: 장기 추세(Trend) {pct_tr:.1f}%  |  계절성(Seasonal) {pct_se:.1f}%  |  불규칙 잔차(Residual) {pct_re:.1f}%',
+         ha='center', fontsize=10.5, fontweight='bold',
+         bbox=dict(boxstyle='round,pad=0.4', facecolor='#f8f9fa', edgecolor='#ced4da', lw=1.2))
+
+plt.tight_layout(rect=[0, 0.02, 1, 0.93])
 fig.savefig(os.path.join(IMAGES_DIR, '03_time_series_decomposition.png'), dpi=150, bbox_inches='tight')
 plt.close()
 
