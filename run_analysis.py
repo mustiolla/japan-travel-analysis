@@ -21,6 +21,7 @@ import seaborn as sns
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from statsmodels.tsa.seasonal import seasonal_decompose
+from statsmodels.tsa.holtwinters import ExponentialSmoothing
 import yfinance as yf
 
 # 한글 폰트 및 마이너스 기호 설정
@@ -263,7 +264,58 @@ plt.tight_layout()
 plt.savefig(os.path.join(IMAGES_DIR, '08_lag_correlation_updated.png'), dpi=150)
 plt.close()
 
-print(f"  ▶ 시각화 차트 7종 생성 및 `{IMAGES_DIR}` 저장 완료!")
+# -------------------------------------------------------------
+# 7. 시계열 심화: 베이스라인 단기 예측 (Holt-Winters Exponential Smoothing)
+# -------------------------------------------------------------
+print("\n[단계 7/7] 시계열 심화: 베이스라인 단기 예측 및 가정/한계 검토")
+# 최근 회복기(2022-06~현재) 시계열을 바탕으로 단기 예측
+df_recent = df_clean[df_clean['Date'] >= '2022-06-01'].set_index('Date')['Visitors'].asfreq('MS').interpolate()
+forecast_horizon = 6
+
+try:
+    hw_model = ExponentialSmoothing(
+        df_recent,
+        trend='add',
+        seasonal='add' if len(df_recent) >= 24 else None,
+        seasonal_periods=12 if len(df_recent) >= 24 else None
+    ).fit()
+
+    forecast_series = hw_model.forecast(forecast_horizon)
+    last_dt = df_recent.index.max()
+    future_dates = pd.date_range(last_dt + pd.DateOffset(months=1), periods=forecast_horizon, freq='MS')
+    
+    # 80%, 95% 신뢰구간
+    resid_std = np.std(hw_model.resid)
+    ci_80_lower = np.maximum(0, forecast_series - 1.282 * resid_std)
+    ci_80_upper = forecast_series + 1.282 * resid_std
+    ci_95_lower = np.maximum(0, forecast_series - 1.960 * resid_std)
+    ci_95_upper = forecast_series + 1.960 * resid_std
+
+    print(f"  ▶ 최근 회복기 기반 향후 {forecast_horizon}개월 베이스라인 예측치:")
+    for dt, f_val, l80, u80 in zip(future_dates, forecast_series, ci_80_lower, ci_80_upper):
+        print(f"    - {dt.strftime('%Y-%m')}: {f_val:,.0f}명 (80% CI: {l80:,.0f} ~ {u80:,.0f}명)")
+
+    # 차트 8: 베이스라인 단기 예측 시각화
+    plt.figure(figsize=(12, 6))
+    plot_hist = df_recent.tail(30)
+    plt.plot(plot_hist.index, plot_hist.values, label='실측 방문객 수 (Actual)', color='#1f77b4', marker='o', linewidth=2)
+    plt.plot(future_dates, forecast_series.values, label=f'향후 {forecast_horizon}개월 예측치 (Holt-Winters)', color='#d62728', linestyle='--', marker='s', linewidth=2.5)
+    plt.fill_between(future_dates, ci_80_lower, ci_80_upper, color='#d62728', alpha=0.2, label='80% 신뢰구간')
+    plt.fill_between(future_dates, ci_95_lower, ci_95_upper, color='#d62728', alpha=0.1, label='95% 신뢰구간')
+    
+    plt.title(f'방일 한국인 여행객 수 단기 베이스라인 예측 (향후 {forecast_horizon}개월)', fontsize=14, fontweight='bold')
+    plt.xlabel('연월')
+    plt.ylabel('방문객 수 (명)')
+    plt.grid(True, linestyle=':', alpha=0.6)
+    plt.legend(loc='upper left', framealpha=0.9)
+    plt.tight_layout()
+    plt.savefig(os.path.join(IMAGES_DIR, '12_baseline_forecast.png'), dpi=150)
+    plt.close()
+    print(f"  ▶ 베이스라인 예측 시각화 생성 완료: `{os.path.join(IMAGES_DIR, '12_baseline_forecast.png')}`")
+except Exception as e:
+    print(f"  ⚠️ 단기 예측 모델 수행 중 오류 발생: {e}")
+
+print(f"\n  ▶ 전체 시각화 차트 생성 및 `{IMAGES_DIR}` 저장 완료!")
 print("\n" + "=" * 70)
-print("🎉 전체 파이프라인 정상 실행 및 검증 완료!")
+print("🎉 전체 파이프라인 및 시계열 심화 예측 정상 실행 완료!")
 print("=" * 70)

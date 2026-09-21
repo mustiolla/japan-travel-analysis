@@ -155,3 +155,56 @@ print(ols_model.summary())
 
 ### 🔍 분석가 검증 및 수정 (User Validation)
 * **검증:** $R^2 = 0.4523$ 도출 확인. 기준월인 1월 대비 9월 더미(`C(Month)[T.9]`)의 계수가 $-169,114.8$ ($p=0.015$)로 가장 큰 음수임을 확인하여 박스플롯 분석의 결론(9월 최비수기)과 완벽히 일치함을 교차 검증 완료.
+
+---
+
+## 7. 보너스 과제 1: 분석 결과 웹 대시보드 서비스화 (Streamlit + Plotly)
+
+### 💬 분석가 프롬프트 (User Prompt)
+> "분석 결과를 간단한 웹 대시보드로 구성해 '기간/조건을 바꿔보며' 탐색 가능하게 만들어줘. 기간 프리셋 및 슬라이더, 환율 시차(Lag 0~6) 조정, 6대 역사적 사건 토글, 시계열 분해 및 단기 예측 시뮬레이션이 가능한 Streamlit 대시보드(`app.py`)를 개발해 줘."
+
+### 🤖 AI 주요 응답 스니펫 (AI Response)
+```python
+import streamlit as st
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+
+st.set_page_config(page_title="방일 여행객 & 원/엔 환율 대시보드", layout="wide")
+# 사이드바 기간 및 Lag 슬라이더
+period_mode = st.sidebar.radio("분석 기간", ["전체 기간", "코로나 이전", "회복기", "직접 지정"])
+selected_lag = st.sidebar.slider("환율 시차 (Lag)", 0, 6, 3)
+show_events = st.sidebar.checkbox("6대 역사적 충격 오버레이", True)
+
+# 5개 탭 구성 (동향, 회귀/시차 시뮬레이션, 분해, 단기 예측, 인사이트)
+tab1, tab2, tab3, tab4, tab5 = st.tabs([...])
+```
+
+### 🔍 분석가 검증 및 수정 (User Validation)
+* **로컬 구동 검증:** `pip install streamlit plotly` 후 `streamlit run app.py`를 실행하여 5개 탭과 사이드바 필터가 상호작용 시 에러 없이 부드럽게 반응형으로 작동함을 확인.
+* **사용자 가이드 작성:** 평가 제출 요건인 `(2) 로컬 실행 방법 문서` 및 `(3) 대시보드 스크린샷 세트 및 시나리오 설명서`를 포괄하는 `DASHBOARD_GUIDE.md`를 신규 작성하여 완벽한 제출 패키지 구성 완료.
+
+---
+
+## 8. 보너스 과제 2: 시계열 심화 베이스라인 단기 예측 (Holt-Winters) 및 가정/한계 분석
+
+### 💬 분석가 프롬프트 (User Prompt)
+> "시계열 심화 옵션으로 베이스라인 방식을 이용해 향후 6개월 짧은 구간을 예측하는 코드를 짜줘. 단순 정확도보다 '가정과 한계' 설명에 집중해서 모델 전제 조건 3가지와 구조적 한계 3가지를 명확히 분석해 줘."
+
+### 🤖 AI 주요 응답 스니펫 (AI Response)
+```python
+from statsmodels.tsa.holtwinters import ExponentialSmoothing
+
+# 최근 회복기(2022.06~현재) 기반 Holt-Winters 적합
+hw_model = ExponentialSmoothing(df_recent, trend='add', seasonal='add', seasonal_periods=12).fit()
+forecast_series = hw_model.forecast(6)
+
+# 80%, 95% 신뢰구간 산출 및 시각화 (12_baseline_forecast.png)
+```
+
+### 🔍 분석가 검증 및 수정 (User Validation)
+* **결과 검증:** 향후 6개월(2024.09~2025.02) 단기 예측치 도출 및 80%/95% 신뢰구간 밴드가 포함된 `12_baseline_forecast.png` 정상 생성 확인.
+* **가정 및 한계 명시:**
+  - **가정:** (1) 계절 주기의 반복성, (2) 거시경제 및 환율 기조의 완만한 연착륙, (3) 외교 및 출입국 제도 현상 유지
+  - **한계:** (1) 블랙스완(재난/외교 쇼크) 무감지, (2) LCC 및 호텔 수용력 등 물리적 공급 상한 미반영, (3) 비선형적 가격 탄력성 왜곡
+* **노트북 및 리포트 연계:** `analysis.ipynb` [Cell #33, #34] 및 `REPORT.md` [섹션 8.2]에 해당 분석과 해석을 전면 수록.
