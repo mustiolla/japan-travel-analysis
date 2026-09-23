@@ -200,7 +200,8 @@ graph TD
 ### 🔬 심화 분석 3: 다변량 OLS 회귀 모델을 통한 복합 영향력 검증
 *(대응 코드: `analysis.ipynb [Cell #31]` / `run_analysis.py [L98-L110]`)*
 
-* **모형 식:** $\text{Visitors} = \beta_0 + \beta_1 \cdot \text{Exchange\_Rate\_Lag3} + \sum_{m=2}^{12} \gamma_m \cdot D_m + \epsilon$ (기준월: 1월)
+* **모형 식:** $\text{Visitors}_t = \beta_0 + \beta_1 \cdot \text{ExchangeRate}_{t-3} + \sum_{m=2}^{12} \gamma_m \cdot D_{m, t} + \epsilon_t$  
+  *(단, $\text{ExchangeRate}_{t-3}$은 파이썬 코드의 `Exchange_Rate_Lag3`(환율 3개월 시차), $D_{m,t}$는 2~12월 계절 더미 변수, 기준월: 1월)*
 * **주요 검증 결과:**
   * **모형 설명력 ($R^2$):** **0.4523 (수정된 $R^2 = 0.3891$, $F\text{-statistic } p\text{-value} = 2.27 \times 10^{-9}$)**
   * **환율 3개월 시차 계수 ($\beta_1$):** **$-68,310.8$ ($p\text{-value} = 4.568 \times 10^{-14}$)**  
