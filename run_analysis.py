@@ -128,6 +128,7 @@ df_reg = df_reg.dropna(subset=['Exchange_Rate_Lag3', 'Visitors']).copy()
 ols_res = smf.ols('Visitors ~ Exchange_Rate_Lag3 + C(Month)', data=df_reg).fit()
 print(f"  ▶ 모형 설명력 (R-squared): {ols_res.rsquared:.4f} (수정 R2: {ols_res.rsquared_adj:.4f})")
 print(f"  ▶ 환율 3개월 시차 계수: {ols_res.params['Exchange_Rate_Lag3']:.1f} (p-value: {ols_res.pvalues['Exchange_Rate_Lag3']:.3e})")
+print(f"     → 경제적 해석: 100엔당 100원 하락(1엔당 1원 하락) 시 3개월 뒤 방문객 약 {abs(ols_res.params['Exchange_Rate_Lag3']):,.0f}명 증가 (100엔당 1원당 약 {abs(ols_res.params['Exchange_Rate_Lag3'])/100:,.0f}명 증가)")
 print(f"  ▶ 최비수기(9월 더미) 계수: {ols_res.params['C(Month)[T.9]']:.1f} (p-value: {ols_res.pvalues['C(Month)[T.9]']:.3f})")
 
 # -------------------------------------------------------------
