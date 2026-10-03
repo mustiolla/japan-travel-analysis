@@ -13,11 +13,11 @@
 
 ```mermaid
 flowchart TD
-    A["&nbsp;&nbsp;&nbsp;&nbsp; 💡 1. 기획 및 가설 설정 &nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp; 5대 핵심 질문 및 지표 정의 &nbsp;&nbsp;&nbsp;&nbsp;"] --> B["&nbsp;&nbsp;&nbsp;&nbsp; 📥 2. 데이터 수집 &nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp; Yahoo Finance API & JNTO 엑셀 &nbsp;&nbsp;&nbsp;&nbsp;"]
-    B --> C["&nbsp;&nbsp;&nbsp;&nbsp; 🧹 3. 데이터 전처리 &nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp; Inner Join 및 결측치 정제 &nbsp;&nbsp;&nbsp;&nbsp;"]
-    C --> D["&nbsp;&nbsp;&nbsp;&nbsp; 📊 4. 시계열 분석 및 시각화 &nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp; 이중축 · 산점도 · 시계열 분해 &nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp; 이동상관 · 시차 상관분석 &nbsp;&nbsp;&nbsp;&nbsp;"]
-    D --> E["&nbsp;&nbsp;&nbsp;&nbsp; 🔬 5. 계량경제학 심화 분석 &nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp; 다변량 OLS 회귀 & 강건성 검증 &nbsp;&nbsp;&nbsp;&nbsp;"]
-    E --> F["&nbsp;&nbsp;&nbsp;&nbsp; 🎯 6. 인사이트 도출 &nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp; Fact-Why-Action & KPI 제시 &nbsp;&nbsp;&nbsp;&nbsp;"]
+    A["💡 1. 기획 & 가설 설정<br>핵심 질문 · 검증 지표"] --> B["📥 2. 데이터 수집<br>Yahoo 환율 · JNTO 통계"]
+    B --> C["🧹 3. 데이터 전처리<br>데이터 병합 · 결측 정제"]
+    C --> D["📊 4. 시계열 분석<br>이중축 · 산점도 · 분해<br>이동상관 · 시차 분석"]
+    D --> E["🔬 5. OLS 회귀 분석<br>다변량 모델 · 유의성 검증"]
+    E --> F["🎯 6. 인사이트 도출<br>Action Plan & KPI"]
 
     style A fill:#f9f2f4,stroke:#d398a7,stroke-width:2px
     style B fill:#e6f2ff,stroke:#99c2ff,stroke-width:2px
