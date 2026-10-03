@@ -12,12 +12,12 @@
 ## 💡 데이터 분석 수행 흐름도
 
 ```mermaid
-graph TD
-    A[💡 1. 기획 및 가설 설정<br>5대 핵심 질문 및 정량 지표 정의] --> B(📥 2. 데이터 수집<br>Yahoo Finance API & JNTO 엑셀)
-    B --> C(🧹 3. 데이터 전처리<br>Inner Join & 결측치/이상치 정제)
-    C --> D(📊 4. 시계열 분석 및 시각화<br>이중축 / 산점도 / 시계열 분해 / 이동상관 / 시차분석)
-    D --> E(🔬 5. 계량경제학 심화 분석<br>다변량 OLS 회귀분석 & 강건성 검증)
-    E --> F{🎯 6. 인사이트 도출<br>Fact-Why-Action & 정량 KPI 제시}
+flowchart TD
+    A["💡 1. 기획 및 가설 설정<br>5대 핵심 질문 및 정량 지표 정의"] --> B["📥 2. 데이터 수집<br>Yahoo Finance API & JNTO 엑셀"]
+    B --> C["🧹 3. 데이터 전처리<br>Inner Join & 결측치/이상치 정제"]
+    C --> D["📊 4. 시계열 분석 및 시각화<br>이중축 · 산점도 · 시계열 분해<br>이동상관 · 시차 교차상관분석"]
+    D --> E["🔬 5. 계량경제학 심화 분석<br>다변량 OLS 회귀 & 강건성 검증"]
+    E --> F(["🎯 6. 인사이트 도출<br>Fact-Why-Action & 정량 KPI 제시"])
 
     style A fill:#f9f2f4,stroke:#d398a7,stroke-width:2px
     style B fill:#e6f2ff,stroke:#99c2ff,stroke-width:2px

@@ -11,12 +11,12 @@
 > 본 분석은 원시 데이터 수집부터 최종 비즈니스 액션 도출까지 아래의 6단계를 거쳐 수행되었습니다. 각 단계는 주피터 노트북([analysis.ipynb](file:///d:/LEH/AI%20%EB%84%A4%EC%9D%B4%ED%8B%B0%EB%B8%8C/3.%20AI%20%EC%9D%91%EC%9A%A9%ED%95%99%EC%8A%B5/M1-1/japan-travel-analysis/analysis.ipynb)) 및 원클릭 자동화 스크립트([run_analysis.py](file:///d:/LEH/AI%20%EB%84%A4%EC%9D%B4%ED%8B%B0%EB%B8%8C/3.%20AI%20%EC%9D%91%EC%9A%A9%ED%95%99%EC%8A%B5/M1-1/japan-travel-analysis/run_analysis.py))로 완벽히 재현 가능합니다.
 
 ```mermaid
-graph TD
-    A[💡 1. 기획 및 가설 설정<br>5대 핵심 질문 및 정량 성공기준 정의] --> B(📥 2. 데이터 수집<br>Yahoo Finance API & JNTO 엑셀)
-    B --> C(🧹 3. 데이터 전처리<br>Date 기준 Inner Join & 결측치/이상치 정제)
-    C --> D(📊 4. 시계열 분석 및 시각화<br>이중축 / 산점도 / 시계열 분해 / 이동상관 / 시차분석)
-    D --> E(🔬 5. 계량경제학 심화 분석<br>다변량 OLS 회귀분석 & 강건성 검증)
-    E --> F{🎯 6. 인사이트 및 액션 플랜<br>Fact-Why-Action & 정량 KPI 제시}
+flowchart TD
+    A["💡 1. 기획 및 가설 설정<br>5대 핵심 질문 및 정량 기준 정의"] --> B["📥 2. 데이터 수집<br>Yahoo Finance API & JNTO 엑셀"]
+    B --> C["🧹 3. 데이터 전처리<br>Date 기준 Inner Join & 결측치 정제"]
+    C --> D["📊 4. 시계열 분석 및 시각화<br>이중축 · 산점도 · 시계열 분해<br>이동상관 · 시차 교차상관분석"]
+    D --> E["🔬 5. 계량경제학 심화 분석<br>다변량 OLS 회귀 & 강건성 검증"]
+    E --> F(["🎯 6. 인사이트 및 액션 플랜<br>Fact-Why-Action & 정량 KPI 제시"])
 
     style A fill:#f9f2f4,stroke:#d398a7,stroke-width:2px
     style B fill:#e6f2ff,stroke:#99c2ff,stroke-width:2px
